@@ -9,7 +9,7 @@ on:
 
 env:
   # Configurable Go version
-  GO_VERSION: "1.23.5"
+  GO_VERSION: "1.25.3"
 
 jobs:
   test:
