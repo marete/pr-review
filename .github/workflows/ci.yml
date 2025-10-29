@@ -8,8 +8,6 @@ on:
   workflow_dispatch:
 
 env:
-  # Configurable Ubuntu version for the container
-  UBUNTU_VERSION: "24.04.3"
   # Configurable Go version
   GO_VERSION: "1.23.5"
 
@@ -19,7 +17,8 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ubuntu:${{ env.UBUNTU_VERSION }}
+      # Ubuntu version (edit this line directly to change version)
+      image: ubuntu:24.04
       options: --user root
 
     steps:
