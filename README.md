@@ -54,6 +54,9 @@ pr-review -thinking-budget 20000
 
 # Include additional context files
 pr-review -context README.md,ARCHITECTURE.md
+
+# Write review to a custom output file
+pr-review -output MY_REVIEW.md
 ```
 
 ### Options
@@ -64,3 +67,17 @@ pr-review -context README.md,ARCHITECTURE.md
 - `-no-ultrathink`: Disable extended thinking mode
 - `-thinking-budget`: Token budget for extended thinking (default: 10000)
 - `-context`: Comma-separated list of additional context files
+- `-output`: Output file for review (default: REQUESTED_CHANGES.md)
+
+### Output and Backups
+
+By default, reviews are written to `REQUESTED_CHANGES.md` and displayed on the terminal. If the output file already exists, it will be backed up using GNU-style numbered backups:
+
+```
+REQUESTED_CHANGES.md      (current review)
+REQUESTED_CHANGES.md.~1~  (previous review)
+REQUESTED_CHANGES.md.~2~  (review before that)
+...
+```
+
+This ensures you never lose previous reviews while keeping a clean history.

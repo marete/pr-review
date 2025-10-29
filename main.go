@@ -62,6 +62,7 @@ func main() {
 	noThinking := flag.Bool("no-ultrathink", false, "Disable extended thinking mode")
 	thinkingBudget := flag.Int("thinking-budget", 10000, "Extended thinking token budget")
 	contextFiles := flag.String("context", "", "Comma-separated list of additional context files to include")
+	outputFile := flag.String("output", "REQUESTED_CHANGES.md", "Output file for review (will create numbered backups if exists)")
 	flag.Parse()
 
 	// Get API key
@@ -125,7 +126,8 @@ func main() {
 
 	// Call Claude API
 	fmt.Println("🤖 Analyzing PR with Claude (ultrathink mode: enabled)...")
-	fmt.Println("⏳ This may take a moment for deep analysis...\n")
+	fmt.Println("⏳ This may take a moment for deep analysis...")
+	fmt.Println()
 
 	review, usage, err := callClaude(apiKey, *model, prompt, !*noThinking, *thinkingBudget)
 	if err != nil {
@@ -133,7 +135,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Print the review
+	// Write review to file
+	if err := writeReviewToFile(*outputFile, review); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing review to file: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("✅ Review written to: %s\n\n", *outputFile)
+
+	// Print the review to terminal
 	fmt.Println("=" + strings.Repeat("=", 78))
 	fmt.Println("CODE REVIEW")
 	fmt.Println("=" + strings.Repeat("=", 78))
@@ -337,4 +346,47 @@ func getRecentCommits(baseBranch string) string {
 		return ""
 	}
 	return strings.TrimSpace(string(output))
+}
+
+// backupFile creates a GNU-style numbered backup of the file if it exists
+// foo.txt -> foo.txt.~1~, foo.txt.~1~ -> foo.txt.~2~, etc.
+func backupFile(filename string) error {
+	// Check if the file exists
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		return nil // Nothing to backup
+	}
+
+	// Find the highest numbered backup
+	highestBackup := 0
+	for i := 1; ; i++ {
+		backupName := fmt.Sprintf("%s.~%d~", filename, i)
+		if _, err := os.Stat(backupName); os.IsNotExist(err) {
+			highestBackup = i
+			break
+		}
+	}
+
+	// Rename the current file to the next backup number
+	backupName := fmt.Sprintf("%s.~%d~", filename, highestBackup)
+	if err := os.Rename(filename, backupName); err != nil {
+		return fmt.Errorf("failed to create backup %s: %w", backupName, err)
+	}
+
+	fmt.Printf("📦 Created backup: %s\n", backupName)
+	return nil
+}
+
+// writeReviewToFile writes the review content to a file, creating a backup if needed
+func writeReviewToFile(filename, content string) error {
+	// Create backup if file exists
+	if err := backupFile(filename); err != nil {
+		return err
+	}
+
+	// Write the review to the file
+	if err := os.WriteFile(filename, []byte(content), 0644); err != nil {
+		return fmt.Errorf("failed to write review to %s: %w", filename, err)
+	}
+
+	return nil
 }
