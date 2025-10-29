@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  # Configurable Ubuntu version for the container
+  UBUNTU_VERSION: "24.04.3"
+  # Configurable Go version
+  GO_VERSION: "1.23.5"
+
+jobs:
+  test:
+    name: Test and Lint
+    runs-on: ubuntu-latest
+
+    container:
+      image: ubuntu:${{ env.UBUNTU_VERSION }}
+      options: --user root
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: ./.github/workflows/scripts/install-deps.sh
+        env:
+          GO_VERSION: ${{ env.GO_VERSION }}
+
+      - name: Add Go to PATH
+        run: echo "/usr/local/go/bin:/root/go/bin" >> $GITHUB_PATH
+
+      - name: Run unit tests
+        run: go test -v ./...
+
+      - name: Run go vet
+        run: go vet -v ./...
+
+      - name: Run staticcheck
+        run: staticcheck ./...

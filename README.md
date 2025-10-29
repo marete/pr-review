@@ -1,5 +1,7 @@
 # PR Review Scripts with Claude
 
+[![CI](https://github.com/marete/pr-review/actions/workflows/ci.yml/badge.svg)](https://github.com/marete/pr-review/actions/workflows/ci.yml)
+
 Thorough PR review tools that use Claude's API with extended thinking (ultrathink) mode enabled by default for deep code analysis.
 
 ## Features
