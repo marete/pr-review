@@ -30,6 +30,7 @@ echo "==> Installing staticcheck..."
 go install honnef.co/go/tools/cmd/staticcheck@latest
 
 # Verify staticcheck installation
-/root/go/bin/staticcheck -version
+GOPATH=$(go env GOPATH)
+"${GOPATH}/bin/staticcheck" -version
 
 echo "==> Dependencies installed successfully!"
