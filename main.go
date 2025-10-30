@@ -61,6 +61,7 @@ func main() {
 	model := flag.String("model", "claude-sonnet-4-5-20250929", "Claude model to use")
 	noThinking := flag.Bool("no-ultrathink", false, "Disable extended thinking mode")
 	thinkingBudget := flag.Int("thinking-budget", 10000, "Extended thinking token budget")
+	maxTokens := flag.Int("max-tokens", 64000, "Maximum output tokens (default: 64000, max: 64000)")
 	contextFiles := flag.String("context", "", "Comma-separated list of additional context files to include")
 	outputFile := flag.String("output", "REQUESTED_CHANGES.md", "Output file for review (will create numbered backups if exists)")
 	flag.Parse()
@@ -129,7 +130,7 @@ func main() {
 	fmt.Println("⏳ This may take a moment for deep analysis...")
 	fmt.Println()
 
-	review, usage, err := callClaude(apiKey, *model, prompt, !*noThinking, *thinkingBudget)
+	review, usage, err := callClaude(apiKey, *model, prompt, !*noThinking, *thinkingBudget, *maxTokens)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error calling Claude API: %v\n", err)
 		os.Exit(1)
@@ -224,10 +225,10 @@ Please be thorough but constructive. Highlight both concerns and things done wel
 	return prompt
 }
 
-func callClaude(apiKey, model, prompt string, useThinking bool, thinkingBudget int) (string, Usage, error) {
+func callClaude(apiKey, model, prompt string, useThinking bool, thinkingBudget, maxTokens int) (string, Usage, error) {
 	req := ClaudeRequest{
 		Model:       model,
-		MaxTokens:   16000,
+		MaxTokens:   maxTokens,
 		Temperature: 1.0,
 		Messages: []Message{
 			{

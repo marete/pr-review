@@ -54,6 +54,9 @@ pr-review -model claude-opus-4-20250514
 # Adjust thinking budget (default: 10000 tokens)
 pr-review -thinking-budget 20000
 
+# Adjust maximum output tokens (default: 64000)
+pr-review -max-tokens 32000
+
 # Include additional context files
 pr-review -context README.md,ARCHITECTURE.md
 
@@ -68,6 +71,7 @@ pr-review -output MY_REVIEW.md
 - `-model`: Claude model to use (default: claude-sonnet-4-5-20250929)
 - `-no-ultrathink`: Disable extended thinking mode
 - `-thinking-budget`: Token budget for extended thinking (default: 10000)
+- `-max-tokens`: Maximum output tokens (default: 64000, max: 64000)
 - `-context`: Comma-separated list of additional context files
 - `-output`: Output file for review (default: REQUESTED_CHANGES.md)
 
